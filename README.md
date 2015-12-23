@@ -1,2 +1,11 @@
 # WhatsApp-Analyser
 This is a full fledged whatsapp analyser intended to work on any conversation.
+
+My aim is to build an app which can be used by anyone in any country typing in any language. This is just the initial release wherein I have built the following features:
+  * Most used words in a conversation
+  * Peak detection on the word-frequency graph (just for the kicks. Doesn't accomplish anything more than the above feature.)
+  * The most and least talkative people in a group. Create a pie chart of individual % contribution to messages.
+  * An activity map to analyse during what time of the day is the group most active.
+  * Most frequently by individual participants.
+
+Note that this project is far from complete. I would love to receive new ideas and improvements or bug fixes/reports. Please report any problem you encounter while using this script.
