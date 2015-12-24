@@ -377,4 +377,86 @@ for k in partDict.keys():
         print '{0}:\n\tno words yet.'.format(k)
 
 
-# #### Daily messages average
+# #### Conversation trends over full timeline
+
+# In[ ]:
+
+dateDict={}
+
+for i in range(len(date)):
+    if name[i]!='':
+        if date[i] in dateDict:
+            dateDict[date[i]]+=1
+        else:
+            dateDict[date[i]]=1
+    else:
+        continue
+print 'Around %d messages everyday.' %(sum(dateDict.values())/len(dateDict.keys()))
+
+dateList=[]
+
+#Rearranging dates for easier comparisons.
+
+for i in range(len(dateDict)):
+    l = map(int,dateDict.keys()[i].split('/'))
+    #This date splitting is specific to DD/MM/YYYY format
+    dt=(l[2],l[1],l[0])
+    dateList.append((dt,dateDict.values()[i]))
+
+dateList=sorted(dateList)
+
+x_coords_datelist = map(lambda l: l[0],dateList)
+y_coords_datelist = map(lambda l: l[1],dateList)
+
+dateListRev = sorted(dateList,key=operator.itemgetter(1),reverse=True)
+maxList, minList = dateListRev[:5], dateListRev[::-1][:5]
+
+print 'Maximum messages:'
+for i in maxList:
+    string = '{0} : {1}'.format(i[0][::-1], i[1])
+    print string
+
+print 'Minimum messages:'
+for i in minList:
+    string = '{0} : {1}'.format(i[0][::-1], i[1])
+    print string
+#Getting coordinates for max 5 and min 5 days
+maxmsg=[]
+minmsg=[]
+for i in range(len(dateList)):
+    if dateList[i] in maxList:
+        maxmsg.append((i,dateList[i][1]))
+    elif dateList[i] in minList:
+        minmsg.append((i,dateList[i][1]))
+    else:
+        continue
+
+plt.figure(figsize=(20,10))
+plt.scatter(range(len(dateList)), y_coords_datelist)
+
+plt.xlabel('Dates')
+plt.ylabel('Messages')
+plt.xticks([i for i in range(0,len(dateList),10)],
+            [str(dateList[i][0][2])+'/'+str(dateList[i][0][1])+'/'+str(dateList[i][0][0]) for i in range(0,len(dateList),10)],
+            rotation=17)
+
+plt.scatter(map(lambda x: x[0],maxmsg),map(lambda x: x[1],maxmsg),color='r')
+for i in maxmsg:
+    string = '{0} : {1}'.format(dateList[i[0]][0][::-1], i[1])
+    plt.annotate(s=string, xy=(i[0],i[1]), xytext=(10,10), 
+                 textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+
+plt.scatter(map(lambda x: x[0],minmsg),map(lambda x: x[1],minmsg),color='g')
+for i in minmsg:
+    string = '{0} : {1}'.format(dateList[i[0]][0][::-1], i[1])
+    plt.annotate(s=string, xy=(i[0],i[1]), xytext=(-10,-10), 
+                 textcoords='offset points', arrowprops=dict(arrowstyle="->"))
+
+
+#Best fit line
+weights = np.polyfit(range(len(dateList)),y_coords_datelist,1)
+
+for x in range(len(dateList)):
+    plt.scatter(x, x*weights[0]+weights[1],marker='+',color='r')
+
+plt.show()
