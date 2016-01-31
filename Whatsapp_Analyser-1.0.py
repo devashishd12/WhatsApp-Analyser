@@ -12,7 +12,7 @@ from numpy import NaN, Inf, arange, isscalar, asarray, array, std
 from matplotlib import pyplot as plt
 from matplotlib import colors as cl
 import operator
-#get_ipython().magic(u'matplotlib inline')
+# get_ipython().magic(u'matplotlib inline')
 
 
 # In[ ]:
@@ -331,6 +331,9 @@ for hours in hour.values():
     else:
         dictHours[hours]=1
 dictHours = dict(sorted(dictHours.items(),key=operator.itemgetter(0)))
+for i in range(24):
+    if i not in dictHours.keys():
+        dictHours[i] = 0
 for x in dictHours: print '{0} : {1}' .format(x, dictHours[x])
 mostActive = sorted(dictHours.items(),key=operator.itemgetter(1),reverse=True)
 print 'Most active around: {0} hrs with {1} messages'.format(mostActive[0][0],mostActive[0][1])
