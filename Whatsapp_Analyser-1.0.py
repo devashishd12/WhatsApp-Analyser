@@ -392,45 +392,66 @@ for k in partDict.keys():
 # In[ ]:
 
 def mod(A):
+    def mod(A, f_max, idf):
     """This function calculates the mod of the values
     of the keys.
     
     Args:
     -----
-    A : List of values of keys like [1, 4, 2, 3, ....]
+    A : List of values of keys like [1, 4, 2, 3, ....].
+    
+    f_max : int frequency of maximum occuring word.
+    
+    idf : float inverse document frequency of name.
     
     Returns:
     --------
     Float value corresponding to the mod of the given list.
     """
-    A = np.asarray(A)
-    return math.sqrt(np.sum(A * A))
+    A = np.asarray(A, dtype=np.float64)
+    A = A / f_max
+    A = A * idf
+    return math.sqrt(A.dot(A))
 
 
 # #### Cosine similarity function
 
 # In[ ]:
 
-def cosine_similarity(A, B):
+def cosine_similarity(name1, name2):
     """This function calculates cosine similarity between two
     dictionaries for the purpose of analysing typing similarity.
-
+    
     Args:
     -----
-    A : First dictionary. Has format {"word1":2, "word2":3, ...}
-
-    B : Second dictionary. Has format {"word1":3, "word3":1, ...}
-
+    name1 : First name.
+    
+    name2 : Second name.
+    
     Returns:
     --------
-    cossimilarity : float value corresponding to the cosine similarity.
+    float value corresponding to the cosine similarity.
     """
+    A = partDict[name1]
+    B = partDict[name2]
+    f_max = sorted_words_list[0][1]
     a = set(A.keys())
     b = set(B.keys())
+    mat1 = np.array([])
+    mat2 = np.array([])
     dotprod = 0
     for word in a.intersection(b):
-        dotprod += A[word] * B[word]
-    return dotprod/(mod(A.values())*mod(B.values()))
+        mat1 = np.append(mat1, A[word])
+        mat2 = np.append(mat2, B[word])
+    mat1 = mat1 / f_max
+    mat2 = mat2 / f_max
+    N = sum(dictNames.values())
+    idf1 = np.log2(N / dictNames[name1])
+    idf2 = np.log2(N / dictNames[name2])
+    mat1 = mat1 * idf1
+    mat2 = mat2 * idf2
+    
+    return mat1.dot(mat2)/(mod(A.values(), f_max, idf1) * mod(B.values(), f_max, idf2))
 
 
 # #### Typing style similarity
@@ -441,9 +462,9 @@ names = partDict.keys()
 backtracker = {}
 for i in range(len(names)-1):
     for j in range(i+1, len(names)):
-        print names[i], names[j]
-        print cosine_similarity(partDict[names[i]], partDict[names[j]])
-
+        backtracker[(names[i], names[j])] = cosine_similarity(names[i], names[j])
+for k in backtracker.keys():
+    print "{0}, {1} : {2}".format(k[0], k[1], backtracker[k])
 
 # #### Conversation trends over full timeline
 
