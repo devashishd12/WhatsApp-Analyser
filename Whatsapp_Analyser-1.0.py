@@ -446,8 +446,8 @@ def cosine_similarity(name1, name2):
     mat1 = mat1 / f_max
     mat2 = mat2 / f_max
     N = sum(dictNames.values())
-    idf1 = np.log2(N / dictNames[name1])
-    idf2 = np.log2(N / dictNames[name2])
+    idf1 = np.log10(N / dictNames[name1])
+    idf2 = np.log10(N / dictNames[name2])
     mat1 = mat1 * idf1
     mat2 = mat2 * idf2
     
