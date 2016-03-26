@@ -8,6 +8,7 @@ My aim is to build an app which can be used by anyone in any country typing in a
   * An activity map to analyse during what time of the day is the group most active.
   * Most frequently used words by individual participants.
   * Conversation trends over full timeline.
+  * (Typing style similarity. Added as a PR. Still have to improve the way I show it.)
 
 Note that this project is far from complete. I would love to receive new ideas and improvements or bug fixes/reports. Please report any problem you encounter while using this script.
 
