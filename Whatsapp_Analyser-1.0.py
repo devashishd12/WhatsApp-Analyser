@@ -7,6 +7,7 @@
 
 import re
 import sys
+import math
 import numpy as np
 from numpy import NaN, Inf, arange, isscalar, asarray, array, std
 from matplotlib import pyplot as plt
@@ -17,8 +18,8 @@ import operator
 
 # In[ ]:
 
-"""Email yourself the whatsapp conversation. Place it in the same directory as this code.
-   Change filename variable to whatever you've named your file.
+"""Email yourself the whatsapp conversation. Place it in the same directory as
+   this code. Change filename variable to whatever you've named your file.
 """
 filename = raw_input("Enter filename with extension: ")
 
@@ -27,8 +28,8 @@ filename = raw_input("Enter filename with extension: ")
 
 # In[ ]:
 
-"""Purpose is to eliminate meaningless words such as 'the', 'a' etc. which might 
-   spoil our analysis results.
+"""Purpose is to eliminate meaningless words such as 'the', 'a' etc. which
+   might spoil our analysis results.
 """
 stopwords = []
 for l in open('stop-words.txt'):
@@ -40,15 +41,16 @@ for l in open('stop-words.txt'):
 # In[ ]:
 
 def tokenize(text):
-    """ An implementation of input string tokenization that excludes stopwords
-    
+    """An implementation of input string tokenization that excludes stopwords.
+
     Args:
-        string (str): input string
-        
+        string (str): input string.
+
     Returns:
-        list: a list of tokens without stopwords
+        list: a list of tokens without stopwords.
     """
-    return filter(lambda s: s if s not in stopwords else '',re.split('\W+',text))
+    return filter(lambda s: s if s not in stopwords else '',
+                  re.split('\W+', text))
 
 
 # #### Removing punctuation
@@ -56,12 +58,14 @@ def tokenize(text):
 # In[ ]:
 
 def removePunctuation(text):
-    """Removes punctuation, changes to lower case, and strips leading and trailing spaces.
+    """Removes punctuation, changes to lower case, and strips leading and
+       trailing spaces.
 
     Note:
-        Only spaces, letters, and numbers should be retained.  Other characters should should be
-        eliminated (e.g. it's becomes its).  Leading and trailing spaces should be removed after
-        punctuation is removed.
+        Only spaces, letters, and numbers should be retained.  Other characters
+        should should be eliminated (e.g. it's becomes its).
+        Leading and trailing spaces should be removed after punctuation is
+        removed.
 
     Args:
         text (str): A string.
@@ -69,7 +73,7 @@ def removePunctuation(text):
     Returns:
         str: The cleaned up string.
     """
-    string=re.sub('[^a-zA-Z\d\s]+','',text)
+    string = re.sub('[^a-zA-Z\d\s]+', '', text)
     return string.lower().strip(' ')
 
 
@@ -79,11 +83,12 @@ def removePunctuation(text):
 
 def splitData(line):
     """Parses the line to return the individual components of it.
-    
+
     Args:
         line (str): Line of the form eg. '17/07/2015, 10:25 AM - (some string)'
-        Note that (some string) need not be of the form Name: Message. Could be something like 'You were added'.
-        
+        Note that (some string) need not be of the form Name: Message. Could be
+        something like 'You were added'.
+
     Returns:
         date: Date of message.
         hour: Hour of message.
@@ -92,42 +97,44 @@ def splitData(line):
         text: Text of message.
     """
     try:
-        timestamp, string = line.split('-',1)
+        timestamp, string = line.split('-', 1)
     except ValueError:
         print line
-    date, time = map(lambda x: x.strip(),timestamp.split(','))
-    
-    #In many convos, the time is already in 24 Hr format. Have to handle that.
+    date, time = map(lambda x: x.strip(), timestamp.split(','))
+
+    # In many convos, the time is already in 24 Hr format. Have to handle that.
     if 'AM' in time or 'PM' in time:
         hour, minmeridiem = time.split(':')
         minute, meridiem = minmeridiem.split()
-        #Converting hours to 24 Hr format.
-        if meridiem=='AM' and int(hour)==12:
-            hour = int(hour)-12
-        elif meridiem=='PM' and int(hour)!=12:
-            hour = int(hour)+12
+        # Converting hours to 24 Hr format.
+        if meridiem == 'AM' and int(hour) == 12:
+            hour = int(hour) - 12
+        elif meridiem == 'PM' and int(hour) != 12:
+            hour = int(hour) + 12
         else:
             hour = int(hour)
     else:
-        hour, minute = map(lambda l: int(l),time.split(':'))
-        
-    #Handling strings of the form:
-    #17/07/2015, 10:25 AM - You were added
-    #or
-    #17/07/2015, 10:25 AM - Name created group “Group 1”
+        hour, minute = map(lambda l: int(l), time.split(':'))
+
+    # Handling strings of the form:
+    # 17/07/2015, 10:25 AM - You were added
+    # or
+    # 17/07/2015, 10:25 AM - Name created group “Group 1”
     try:
-        name, text = map(lambda x: x.strip(),string.split(':',1))
-        #Handling unsaved numbers.
+        name, text = map(lambda x: x.strip(), string.split(':', 1))
+        # Handling unsaved numbers.
         if '\xe2\x80\xaa' in name:
-            name=re.findall('\+[0-9 ]+',name)[0]
+            name = re.findall('\+[0-9 ]+', name)[0]
     except ValueError, e:
         name = ''
         text = string.strip()
-    #for media files
+    # for media files
     if '<Media omitted>' in text:
-        text='<Media omitted>'
+        text = '<Media omitted>'
     else:
-        text = removePunctuation(text) #Problem might arise during sentiment analysis. Emoticons might be needed.
+        # Problem might arise during sentiment analysis. Emoticons might be
+        # needed.
+        text = removePunctuation(text)
     return (date, hour, minute, name, text)
 
 
@@ -135,13 +142,13 @@ def splitData(line):
 
 # In[ ]:
 
-#Reqd dictionaries to maintain track of each message.
-date={}
-hour={}
-minute={}
-name={}
-text={}
-#and a list
+# Reqd dictionaries to maintain track of each message.
+date = {}
+hour = {}
+minute = {}
+name = {}
+text = {}
+# and a list
 words = []
 multimedia = 0 #count of mulimedia messages.
 i=0 #Essentially a message id. Primary key to address all attributes
@@ -379,6 +386,85 @@ for k in partDict.keys():
     except IndexError:
         print '{0}:\n\tno words yet.'.format(k)
 
+
+# #### Mod function for cosine similarity
+
+# In[ ]:
+
+def mod(A):
+    def mod(A, f_max, idf):
+    """This function calculates the mod of the values
+    of the keys.
+    
+    Args:
+    -----
+    A : List of values of keys like [1, 4, 2, 3, ....].
+    
+    f_max : int frequency of maximum occuring word.
+    
+    idf : float inverse document frequency of name.
+    
+    Returns:
+    --------
+    Float value corresponding to the mod of the given list.
+    """
+    A = np.asarray(A, dtype=np.float64)
+    A = A / f_max
+    A = A * idf
+    return math.sqrt(A.dot(A))
+
+
+# #### Cosine similarity function
+
+# In[ ]:
+
+def cosine_similarity(name1, name2):
+    """This function calculates cosine similarity between two
+    dictionaries for the purpose of analysing typing similarity.
+    
+    Args:
+    -----
+    name1 : First name.
+    
+    name2 : Second name.
+    
+    Returns:
+    --------
+    float value corresponding to the cosine similarity.
+    """
+    A = partDict[name1]
+    B = partDict[name2]
+    f_max = sorted_words_list[0][1]
+    a = set(A.keys())
+    b = set(B.keys())
+    mat1 = np.array([])
+    mat2 = np.array([])
+    dotprod = 0
+    for word in a.intersection(b):
+        mat1 = np.append(mat1, A[word])
+        mat2 = np.append(mat2, B[word])
+    mat1 = mat1 / f_max
+    mat2 = mat2 / f_max
+    N = sum(dictNames.values())
+    idf1 = np.log10(N / dictNames[name1])
+    idf2 = np.log10(N / dictNames[name2])
+    mat1 = mat1 * idf1
+    mat2 = mat2 * idf2
+    
+    return mat1.dot(mat2)/(mod(A.values(), f_max, idf1) * mod(B.values(), f_max, idf2))
+
+
+# #### Typing style similarity
+
+# In[ ]:
+
+names = partDict.keys()
+backtracker = {}
+for i in range(len(names)-1):
+    for j in range(i+1, len(names)):
+        backtracker[(names[i], names[j])] = cosine_similarity(names[i], names[j])
+for k in backtracker.keys():
+    print "{0}, {1} : {2}".format(k[0], k[1], backtracker[k])
 
 # #### Conversation trends over full timeline
 
