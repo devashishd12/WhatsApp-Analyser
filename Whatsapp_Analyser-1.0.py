@@ -549,3 +549,27 @@ for x in range(len(dateList)):
     plt.scatter(x, x*weights[0]+weights[1],marker='+',color='r')
 
 plt.show()
+
+
+#####Let's get a wordclous for your chat
+newfile = open('newfile.txt','w')
+for item in words:
+  newfile.write("%s\n" % item)
+
+####Installing package to create a wordCloud
+import pexpect
+p = pexpect.spawn('conda install -c conda-forge wordcloud')
+while True:
+    try:
+        p.expect('Proceed ([y]/n)?')
+        print(p.before)
+        p.sendline(raw_input('>>> '))
+    except pexpect.EOF:
+        break
+
+####Creating wordCloud
+!wordcloud_cli.py --text newfile.txt --imagefile wordcloud.png
+
+#Here is your wordCloud:
+from IPython.display import Image
+Image("./wordcloud.png")

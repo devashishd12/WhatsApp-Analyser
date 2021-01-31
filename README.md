@@ -1,6 +1,7 @@
 # WhatsApp-Analyser
-This is a full fledged whatsapp analyser intended to work on any conversation.
+This is a full fledged whatsapp analyser intended to work on any conversation. Apart from what dsquareIndia has done, I have added a word-cloud generator twoards the end of the notebook. Here I have used a Whatsapp chat of mine with my friend to generate the wordCloud that we see at the end of the file. 
 
+From dsquareIndia's readme:
 My aim is to build an app which can be used by anyone in any country typing in any language. This is just the initial release wherein I have built the following features:
   * Most used words in a conversation
   * Peak detection on the word-frequency graph (just for the kicks. Doesn't accomplish anything more than the above feature.)
